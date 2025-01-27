@@ -1,30 +1,59 @@
+#pragma once
+
 #include <string>
+#include <vector>
+#include <functional>
 
 #ifdef _WIN64
-#include <windows.h>
-#include <dwmapi.h>
-#pragma comment(lib, "dwmapi.lib")
-#endif
-
-#ifdef unix
-#include <x11/x.h>
+#include <Windows.h>
+#elif __unix__
 #endif
 
 class Windew {
 public:
-	// Window Creation Structure
-	typedef struct WinInfo_t {
-		std::string title;	// Window Title
-		size_t x;			// Window X Coord Size
-		size_t y;			// Window Y Coord Size
-		bool resizable;		// Can window be resized
-		bool fullscreen;	// Is window fullscreen (X and Y coords will be treated as resolution)
-		bool darkmode;		// Sets dark mode for window titlebar
-	} Wininfo_t;
+	struct font {
+		std::string name;
+		uint32_t size;
+	};
 
-	Windew(WinInfo_t& wininfo);
+	struct button {
+		std::string text;
+		uint32_t x;
+		uint32_t y;
+		uint32_t w;
+		uint32_t h;
+		font& userfont;
+		std::function<void()> callback;
+	};
+	struct label {
+		std::string text;
+		uint32_t x;
+		uint32_t y;
+		uint32_t w;
+		uint32_t h;
+		font& userfont;
+	};
+	struct textbox {
+		uint32_t x;
+		uint32_t y;
+		uint32_t w;
+		uint32_t h;
+		font& userfont;
+	};
+
+	Windew(std::string& title, uint32_t w, uint32_t h, bool resizable, bool fullscreen);
+	void update();
+	bool shouldClose();
 	~Windew();
 
+	void createButton(button& constructor);
+	void createLabel(label& constructor);
+	void createTextbox(textbox& constructor);
+
+	static void popup(std::string& title, std::string& message);
+
 private:
-	HINSTANCE hInstance;
+#ifdef _WIN64
+	HFONT setFont(font& font);
+#endif
 };
